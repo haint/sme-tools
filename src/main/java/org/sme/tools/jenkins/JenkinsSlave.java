@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,15 +21,17 @@ import org.apache.http.message.BasicNameValuePair;
  *
  * Apr 18, 2014
  */
-public class JenkinsSlave implements Serializable {
+public class JenkinsSlave {
 
-  private String slaveName;
-  
+  /** .*/
   private String slaveAddress;
   
-  public JenkinsSlave(String slaveName, String slaveAddress) {
-    this.slaveName = slaveName;
+  public JenkinsSlave(String slaveAddress) {
     this.slaveAddress = slaveAddress;
+  }
+  
+  public boolean isExisted() {
+    return false;
   }
   
   public HttpEntity buildFormData() throws IOException {
@@ -46,7 +47,7 @@ public class JenkinsSlave implements Serializable {
       }
     }
     list.add(new BasicNameValuePair("_.host", slaveAddress));
-    list.add(new BasicNameValuePair("name", slaveName));
+    list.add(new BasicNameValuePair("name", slaveAddress));
     BufferedInputStream is = new BufferedInputStream(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-slave-json-template"));
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     byte[] buff = new byte[1024];
@@ -54,15 +55,9 @@ public class JenkinsSlave implements Serializable {
       bos.write(buff, 0, i);
     }
     String json = new String(bos.toByteArray());
-    json = String.format(json, slaveName);
-    System.out.println(json);
-    System.out.println(list);
+    json = String.format(json, slaveAddress);
     list.add(new BasicNameValuePair("json", json));
     return new UrlEncodedFormEntity(list);
-  }
-  
-  public String getSlaveName() {
-    return slaveName;
   }
   
   public String getSlaveAddress() {

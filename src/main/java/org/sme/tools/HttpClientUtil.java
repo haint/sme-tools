@@ -23,7 +23,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
  *
  */
 public class HttpClientUtil {
-  public static String fetch(HttpClient httpclient, String uri) throws Exception
+  public static String fetch(HttpClient httpclient, String uri) throws IOException
   {
     if(httpclient == null) 
     {
