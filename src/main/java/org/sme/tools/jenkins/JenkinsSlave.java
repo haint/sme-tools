@@ -55,7 +55,7 @@ public class JenkinsSlave {
       bos.write(buff, 0, i);
     }
     String json = new String(bos.toByteArray());
-    json = String.format(json, slaveAddress);
+    json = String.format(json, slaveAddress, slaveAddress);
     list.add(new BasicNameValuePair("json", json));
     return new UrlEncodedFormEntity(list);
   }
