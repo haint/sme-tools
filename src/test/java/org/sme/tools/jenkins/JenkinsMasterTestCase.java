@@ -10,7 +10,6 @@ import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author <a href="mailto:haithanh0809@gmail.com">Nguyen Thanh Hai</a>
@@ -32,7 +31,7 @@ public class JenkinsMasterTestCase {
     master.deleteAllSlaves();
   }
 
-  @Test
+  //@Test
   public void testCreateSlave() throws IOException {
     JenkinsSlave slave1 = new JenkinsSlave("172.27.4.72");
     Assert.assertTrue(master.createSlave(slave1));
