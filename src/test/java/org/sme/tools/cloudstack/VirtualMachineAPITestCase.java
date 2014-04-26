@@ -25,7 +25,7 @@ public class VirtualMachineAPITestCase {
   
   @Test
   public void testListVirutalMachines() throws IOException {
-    List<VirtualMachine> vms = VirtualMachineAPI.listVirtualMachines("chef-workstation", State.Running, null, ApiConstants.VMDetails.nics);
+    List<VirtualMachine> vms = VirtualMachineAPI.listVirtualMachines(null, "chef-workstation", State.Running, null, ApiConstants.VMDetails.nics);
     Assert.assertEquals(1, vms.size());
     VirtualMachine vm = vms.get(0);
     Assert.assertEquals("chef-workstation", vm.name);
@@ -33,13 +33,13 @@ public class VirtualMachineAPITestCase {
     Assert.assertEquals(1, vm.nic.length);
     Assert.assertEquals("172.27.4.86", vm.nic[0].ipAddress);
     
-    vms = VirtualMachineAPI.listVirtualMachines("not-existed", State.Unknown, "not-existed", null);
+    vms = VirtualMachineAPI.listVirtualMachines(null, "not-existed", State.Unknown, "not-existed", null);
     Assert.assertEquals(0, vms.size());
   }
   
   @Test
   public void quickDeployAndDestroy() throws Exception {
-    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("test-" + System.currentTimeMillis(), "Medium Instance", "jenkins-slave", "10G");
+    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("test-" + System.currentTimeMillis(), "jenkins-slave", "Medium Instance", "10G");
     String vmId = response[0];
     String jobId = response[1];
     Job job = AsyncJobAPI.queryAsyncJobResult(jobId);

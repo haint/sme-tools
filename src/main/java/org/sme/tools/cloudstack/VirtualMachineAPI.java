@@ -21,7 +21,7 @@ import com.cloud.vm.VirtualMachine.State;
  */
 public class VirtualMachineAPI extends CloudStackAPI {
   
-  public static String[] quickDeployVirtualMachine(String name, String service, String template, String disk) throws IOException {
+  public static String[] quickDeployVirtualMachine(String name, String template, String service, String disk) throws IOException {
     String zoneId = ZoneAPI.listAvailableZones().get(0).id;
     String templateId = TemplateAPI.listTemplates(TemplateFilter.all, null, template, zoneId).get(0).id;
     String serviceOfferingId = ServiceOfferingAPI.listServiceOfferings(null, service).get(0).id;
@@ -54,8 +54,11 @@ public class VirtualMachineAPI extends CloudStackAPI {
     return json.getString("jobid");
   }
 
-  public static List<VirtualMachine> listVirtualMachines(String name, State state, String templateId, ApiConstants.VMDetails details) throws IOException {
+  public static List<VirtualMachine> listVirtualMachines(String id, String name, State state, String templateId, ApiConstants.VMDetails details) throws IOException {
     StringBuilder sb = new StringBuilder("command=listVirtualMachines&response=json");
+    
+    if (id != null && !id.isEmpty())
+      sb.append("&id=").append(id);
     
     if (name != null && !name.isEmpty()) 
       sb.append("&name=").append(name);
@@ -72,5 +75,10 @@ public class VirtualMachineAPI extends CloudStackAPI {
     String command = sb.toString();
     String response = request(command);
     return buildModels(VirtualMachine.class, response, "listvirtualmachinesresponse", "virtualmachine");
+  }
+  
+  public static VirtualMachine findVMById(String vmId, ApiConstants.VMDetails details) throws IOException {
+    List<VirtualMachine> list = listVirtualMachines(vmId, null, null, null, details);
+    return list.get(0);
   }
 }

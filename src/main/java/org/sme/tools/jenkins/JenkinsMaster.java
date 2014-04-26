@@ -37,6 +37,9 @@ public class JenkinsMaster {
   /** .*/
   private String port;
   
+  /** .*/
+  private String[] systemNodes = { "master", "chef-workstation" };
+  
   public JenkinsMaster(String masterHost, String scheme, String port) {
     this.masterHost = masterHost;
     this.scheme = scheme;
@@ -54,11 +57,13 @@ public class JenkinsMaster {
     post.setEntity(slave.buildFormData());
     HttpResponse res = client.execute(post, httpContext);
     String body = HttpClientUtil.getContentBodyAsString(res);
-    return body.length() == 0;
+    
+    JSONObject json = new JSONObject(HttpClientUtil.fetch(client, buildURL("computer/" + slave.getSlaveAddress() + "/api/json")));
+    return body.length() == 0 && !json.getBoolean("offline");
   }
   
-  public List<String> listSlaves() throws IOException {
     List<String> slaves = new ArrayList<String>();
+    public List<String> listSlaves() throws IOException {
     DefaultHttpClient client = HttpClientFactory.getInstance();
     String json = HttpClientUtil.fetch(client, buildURL("computer/api/json"));
     JSONObject jsonObj = new JSONObject(json);
@@ -66,9 +71,13 @@ public class JenkinsMaster {
     for (int i = 0; i < array.length(); i++) {
       JSONObject obj = array.getJSONObject(i);
       String displayName = obj.getString("displayName");
-      if (!"master".equals(displayName)) {
-        slaves.add(displayName);
+      boolean isSystemNode = false;
+      for (String sysNode : systemNodes) {
+        if (displayName.equals(sysNode)) {
+          isSystemNode = true; 
+        }
       }
+      if (!isSystemNode) slaves.add(displayName);
     }
     return Collections.unmodifiableList(slaves);
   }
@@ -94,9 +103,8 @@ public class JenkinsMaster {
     params.add(new BasicNameValuePair("json", "{}"));
     post.setEntity(new UrlEncodedFormEntity(params));
     
-    HttpResponse res = client.execute(post, httpContext);
-    String body = HttpClientUtil.getContentBodyAsString(res);
-    return body.length() == 0;
+    client.execute(post, httpContext);
+    return !listSlaves().contains(slaveName);
   }
   
   private String buildURL(String actionURL) {
