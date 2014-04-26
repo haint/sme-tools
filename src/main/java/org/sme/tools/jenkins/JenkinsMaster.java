@@ -18,8 +18,8 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.sme.tools.HttpClientFactory;
-import org.sme.tools.HttpClientUtil;
+import org.sme.tools.http.HttpClientFactory;
+import org.sme.tools.http.HttpClientUtil;
 
 /**
  * @author <a href="mailto:haithanh0809@gmail.com">Nguyen Thanh Hai</a>

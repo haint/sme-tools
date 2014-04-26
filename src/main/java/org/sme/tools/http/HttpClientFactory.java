@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.sme.tools;
+package org.sme.tools.http;
 
 import java.io.IOException;
 

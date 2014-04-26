@@ -12,9 +12,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sme.tools.HttpClientFactory;
-import org.sme.tools.HttpClientUtil;
 import org.sme.tools.cloudstack.model.AbstractModel;
+import org.sme.tools.http.HttpClientFactory;
+import org.sme.tools.http.HttpClientUtil;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
