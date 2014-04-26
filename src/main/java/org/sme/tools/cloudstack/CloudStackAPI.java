@@ -37,7 +37,7 @@ public abstract class CloudStackAPI {
     return HttpClientUtil.fetch(http, url.replaceAll(" ", "%20"));
   }
   
-  protected static <T extends AbstractModel> List<T> buildModels(Class<T> clazz, String response, String rootNode, String arrayNode) throws JsonProcessingException, JSONException, IOException {
+  protected static <T extends AbstractModel> List<T> buildModels(Class<T> clazz, String response, String rootNode, String arrayNode, ModelFilter<T> filter) throws JsonProcessingException, JSONException, IOException {
     JSONObject json = new JSONObject(response).getJSONObject(rootNode);
     
     if (json.has("count")) {
@@ -46,12 +46,19 @@ public abstract class CloudStackAPI {
       List<T> models = new ArrayList<T>();
       for (int i = 0; i < size; i++) {
         T model = CloudStackAPI.<T>buildModel(clazz, array.getJSONObject(i));
-        models.add(model);
+        if (filter == null)
+          models.add(model);
+        else 
+          filter.doFilter(models, model);
       }
       return models;
     }
     
     return Collections.<T>emptyList();
+  }
+  
+  protected static <T extends AbstractModel> List<T> buildModels(Class<T> clazz, String response, String rootNode, String arrayNode) throws JsonProcessingException, JSONException, IOException {
+    return buildModels(clazz, response, rootNode, arrayNode, null);
   }
   
   protected static <T extends AbstractModel> T buildModel(Class<T> clazz, JSONObject json) throws JsonProcessingException, IOException {

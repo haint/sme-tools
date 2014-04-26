@@ -10,6 +10,7 @@ import junit.framework.Assert;
 
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.jobs.JobInfo.Status;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.sme.tools.cloudstack.model.Job;
 import org.sme.tools.cloudstack.model.VirtualMachine;
@@ -22,6 +23,11 @@ import com.cloud.vm.VirtualMachine.State;
  * Apr 25, 2014
  */
 public class VirtualMachineAPITestCase {
+  
+  @AfterClass 
+  public static void tearDown() throws IOException {
+    VolumeAPI.clearNotAttachedVolumes();
+  }
   
   @Test
   public void testListVirutalMachines() throws IOException {
@@ -39,7 +45,7 @@ public class VirtualMachineAPITestCase {
   
   @Test
   public void quickDeployAndDestroy() throws Exception {
-    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("test-" + System.currentTimeMillis(), "jenkins-slave", "Medium Instance", "10G");
+    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("test-" + System.currentTimeMillis(), "jenkins-slave-non-ui", "Small Instance", "Small");
     String vmId = response[0];
     String jobId = response[1];
     Job job = AsyncJobAPI.queryAsyncJobResult(jobId);

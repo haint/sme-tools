@@ -62,8 +62,7 @@ public class HttpClientUtil {
     byte[] buff = new byte[1024];
     for(int l = bis.read(buff); l != -1; l = bis.read(buff))
     {
-      baos.write(buff, 0, buff.length);
-      buff = new byte[1024];
+      baos.write(buff, 0, l);
     }
     return new String(baos.toByteArray(), "UTF-8");
   }

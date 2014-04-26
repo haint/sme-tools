@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sme.tools.cloudstack.AsyncJobAPI;
 import org.sme.tools.cloudstack.VirtualMachineAPI;
+import org.sme.tools.cloudstack.VolumeAPI;
 import org.sme.tools.cloudstack.model.Job;
 import org.sme.tools.cloudstack.model.VirtualMachine;
 import org.sme.tools.ssh.SSHClient;
@@ -58,6 +59,7 @@ public class JenkinsMasterTestCase {
     }
     if (job.getStatus() == Status.SUCCEEDED) {
       System.out.println("Destroyed VM: " + vm.id);
+      VolumeAPI.clearNotAttachedVolumes();
     }
   }
 
