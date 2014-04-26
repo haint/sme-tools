@@ -45,7 +45,7 @@ public class Main {
   }
   
   private static void createSlave() throws IOException {
-    JenkinsMaster master = new JenkinsMaster("git.sme.org", "http", "8080");
+    JenkinsMaster master = new JenkinsMaster("git.sme.org", "http", 8080);
     NetworkInterface eth0 = NetworkInterface.getByName("eth0");
     Enumeration<InetAddress> inets = eth0.getInetAddresses();
     while (inets.hasMoreElements()) {
@@ -63,7 +63,7 @@ public class Main {
   }
   
   private static void destroySlave() throws IOException {
-    JenkinsMaster master = new JenkinsMaster("git.sme.org", "http", "8080");
+    JenkinsMaster master = new JenkinsMaster("git.sme.org", "http", 8080);
     NetworkInterface eth0 = NetworkInterface.getByName("eth0");
     Enumeration<InetAddress> inets = eth0.getInetAddresses();
     while (inets.hasMoreElements()) {

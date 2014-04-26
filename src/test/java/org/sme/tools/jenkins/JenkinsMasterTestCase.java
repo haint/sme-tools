@@ -8,15 +8,8 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.apache.cloudstack.api.ApiConstants.VMDetails;
-import org.apache.cloudstack.jobs.JobInfo.Status;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.sme.tools.cloudstack.AsyncJobAPI;
-import org.sme.tools.cloudstack.VirtualMachineAPI;
-import org.sme.tools.cloudstack.VolumeAPI;
-import org.sme.tools.cloudstack.model.Job;
+import org.sme.tools.cloudstack.AbstractVMTestCase;
 import org.sme.tools.cloudstack.model.VirtualMachine;
 import org.sme.tools.ssh.SSHClient;
 
@@ -25,42 +18,24 @@ import org.sme.tools.ssh.SSHClient;
  *
  * Apr 21, 2014
  */
-public class JenkinsMasterTestCase {
+public class JenkinsMasterTestCase extends AbstractVMTestCase {
   
   /** .*/
   private JenkinsMaster master;
   
   /** .*/
-  private VirtualMachine vm;
+  protected VirtualMachine vm;
   
-  @Before
-  public void setUp() throws IOException {
-    master = new JenkinsMaster("git.sme.org", "http", "8080");
-    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("slave-" + System.currentTimeMillis(), "jenkins-slave-non-ui", "Small Instance", "Small");
-    String vmId = response[0];
-    String jobId = response[1];
-    Job job = AsyncJobAPI.queryAsyncJobResult(jobId);
-    while (!job.getStatus().done()) {
-      job = AsyncJobAPI.queryAsyncJobResult(jobId);
-    }
-    if (job.getStatus() == Status.SUCCEEDED) {
-      System.out.println("Created VM: " + vmId);
-      vm = VirtualMachineAPI.findVMById(vmId, VMDetails.nics);
-    }
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    master = new JenkinsMaster("git.sme.org", "http", 8080);
   }
   
-  @After
-  public void tearDown() throws IOException {
+  @Override
+  public void tearDown() throws Exception {
+    super.tearDown();
     master.deleteAllSlaves();
-    String jobId = VirtualMachineAPI.destroyVM(vm.id, true);
-    Job job = AsyncJobAPI.queryAsyncJobResult(jobId);
-    while (!job.getStatus().done()) {
-      job = AsyncJobAPI.queryAsyncJobResult(jobId);
-    }
-    if (job.getStatus() == Status.SUCCEEDED) {
-      System.out.println("Destroyed VM: " + vm.id);
-      VolumeAPI.clearNotAttachedVolumes();
-    }
   }
 
   @Test

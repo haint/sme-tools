@@ -35,12 +35,12 @@ public class JenkinsMaster {
   private String scheme;
   
   /** .*/
-  private String port;
+  private int port;
   
   /** .*/
   private String[] systemNodes = { "master", "chef-workstation" };
   
-  public JenkinsMaster(String masterHost, String scheme, String port) {
+  public JenkinsMaster(String masterHost, String scheme, int port) {
     this.masterHost = masterHost;
     this.scheme = scheme;
     this.port = port;
@@ -121,7 +121,7 @@ public class JenkinsMaster {
     return scheme;
   }
   
-  public String getPort() {
+  public int getPort() {
     return port;
   }
 }
