@@ -23,9 +23,6 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
   /** .*/
   private JenkinsMaster master;
   
-  /** .*/
-  protected VirtualMachine vm;
-  
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -39,15 +36,19 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
   }
 
   @Test
-  public void testCreateSlave() throws IOException {
-
+  public void testCreateSlave() throws IOException, InterruptedException {
     String ipAddress = vm.nic[0].ipAddress;
-    if (SSHClient.checkEstablished(ipAddress, 22, 3 * 1000)) {
-      JenkinsSlave slave1 = new JenkinsSlave(ipAddress);
-      Assert.assertTrue(master.createSlave(slave1));
-      List<String> slaves = master.listSlaves();
-      Assert.assertEquals(1, slaves.size());
-      Assert.assertTrue(slaves.contains(ipAddress));
-    }
+
+    Thread.sleep(10 * 1000); //for VM booted
+    
+    JenkinsSlave slave1 = new JenkinsSlave(ipAddress);
+
+    System.out.println("create slave " + ipAddress);
+    Assert.assertTrue(master.createSlave(slave1));
+
+    List<String> slaves = master.listSlaves();
+
+    Assert.assertEquals(1, slaves.size());
+    Assert.assertTrue(slaves.contains(ipAddress));
   }
 }

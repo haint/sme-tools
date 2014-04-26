@@ -55,6 +55,9 @@ public class VirtualMachineAPITestCase {
     
     if (job.getStatus() == Status.SUCCEEDED) {
       System.out.println("Created VM: " + vmId);
+      
+      Thread.sleep(30 * 1000); //unstable
+      
       jobId = VirtualMachineAPI.destroyVM(vmId, true);
       job = AsyncJobAPI.queryAsyncJobResult(jobId);
       while (!job.getStatus().done()) {

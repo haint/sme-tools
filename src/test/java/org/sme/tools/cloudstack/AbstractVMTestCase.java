@@ -3,8 +3,6 @@
  */
 package org.sme.tools.cloudstack;
 
-import java.io.IOException;
-
 import org.apache.cloudstack.api.ApiConstants.VMDetails;
 import org.apache.cloudstack.jobs.JobInfo.Status;
 import org.junit.After;
@@ -38,6 +36,8 @@ public class AbstractVMTestCase {
   
   @After
   public void tearDown() throws Exception {
+    Thread.sleep(15 * 1000); //unstable
+    
     String jobId = VirtualMachineAPI.destroyVM(vm.id, true);
     Job job = AsyncJobAPI.queryAsyncJobResult(jobId);
     while (!job.getStatus().done()) {

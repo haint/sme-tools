@@ -58,8 +58,8 @@ public class JenkinsMaster {
     HttpResponse res = client.execute(post, httpContext);
     String body = HttpClientUtil.getContentBodyAsString(res);
     
-    JSONObject json = new JSONObject(HttpClientUtil.fetch(client, buildURL("computer/" + slave.getSlaveAddress() + "/api/json")));
-    return body.length() == 0 && !json.getBoolean("offline");
+    //JSONObject json = new JSONObject(HttpClientUtil.fetch(client, buildURL("computer/" + slave.getSlaveAddress() + "/api/json")));
+    return body.length() == 0 /*&& !json.getBoolean("offline")*/;
   }
   
     List<String> slaves = new ArrayList<String>();
@@ -103,8 +103,9 @@ public class JenkinsMaster {
     params.add(new BasicNameValuePair("json", "{}"));
     post.setEntity(new UrlEncodedFormEntity(params));
     
-    client.execute(post, httpContext);
-    return !listSlaves().contains(slaveName);
+    HttpResponse res = client.execute(post, httpContext);
+    String body = HttpClientUtil.getContentBodyAsString(res);
+    return body.length() == 0;
   }
   
   private String buildURL(String actionURL) {

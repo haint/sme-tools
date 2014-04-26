@@ -63,7 +63,7 @@ public class SSHClient {
     Session session = jsch.getSession(username, host, port);
     session.setPassword(password);
     session.setConfig("StrictHostKeyChecking", "no");
-    session.connect();
+    session.connect(3 * 1000);
     return session;
   }
   
