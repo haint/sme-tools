@@ -84,7 +84,7 @@ public class SSHClient {
     return channel;
   }
   
-  public static void printOut(PrintStream out, Channel channel) throws IOException {
+  public static int printOut(PrintStream out, Channel channel) throws IOException {
     InputStream in=channel.getInputStream();
     byte[] tmp=new byte[1024];
     while(true){
@@ -94,17 +94,17 @@ public class SSHClient {
         out.print(new String(tmp, 0, i));
       }
       if(channel.isClosed()){
-        if(in.available()>0) continue; 
-        out.println("exit-status: "+channel.getExitStatus());
-        break;
+        if(in.available()>0) continue;
+        return channel.getExitStatus();
+//        out.println("exit-status: "+channel.getExitStatus());
       }
       try{Thread.sleep(1000);}catch(Exception ee){}
     }
   }
 
   public static void main(String[] args) throws JSchException, IOException {
-    Session session = SSHClient.getSession("git.sme.org", 22, "ubuntu", "ubuntu");
-    Channel channel = SSHClient.execCommand(session, "echo 'hello world'", null, System.err);
+    Session session = SSHClient.getSession("172.27.4.86", 22, "ubuntu", "ubuntu");
+    Channel channel = SSHClient.execCommand(session, "knife bootstrap not-existed -x ubuntu -P ubuntu --sudo --use-sudo-password  --no-host-key-verify -N node-test", null, System.err);
     SSHClient.printOut(System.out, channel);
     channel.disconnect();
     session.disconnect();
