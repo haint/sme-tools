@@ -25,6 +25,10 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 public class HttpClientUtil {
   public static String fetch(HttpClient httpclient, String uri) throws IOException
   {
+    return getContentBodyAsString(execute(httpclient, uri));
+  }
+  
+  public static HttpResponse execute(HttpClient httpclient, String uri) throws IOException {
     if(httpclient == null) 
     {
       throw new NullPointerException();
@@ -34,7 +38,7 @@ public class HttpClientUtil {
       throw new NullPointerException();
     }
     HttpGet get = new HttpGet(uri);
-    return getContentBodyAsString(httpclient.execute(get));
+    return httpclient.execute(get);
   }
   
   public static Cookie addCookie(HttpClient httpclient, String name, String value) 

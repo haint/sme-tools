@@ -10,8 +10,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.sme.tools.cloudstack.AbstractVMTestCase;
-import org.sme.tools.cloudstack.model.VirtualMachine;
-import org.sme.tools.ssh.SSHClient;
 
 /**
  * @author <a href="mailto:haithanh0809@gmail.com">Nguyen Thanh Hai</a>
@@ -50,5 +48,34 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
 
     Assert.assertEquals(1, slaves.size());
     Assert.assertTrue(slaves.contains(ipAddress));
+  }
+  
+  @Test
+  public void testCreateJob() throws Exception {
+    String ipAddress = vm.nic[0].ipAddress;
+    
+    Thread.sleep(10 * 1000); //for VM booted
+    
+    JenkinsSlave slave1 = new JenkinsSlave(ipAddress);
+
+    System.out.println("create slave " + ipAddress);
+    Assert.assertTrue(master.createSlave(slave1));
+    
+    Thread.sleep(10 * 1000);
+    
+    JenkinsJob job = new JenkinsJob(master, "job-" + System.currentTimeMillis(), slave1.getSlaveAddress(), "http://git.sme.org/root/simple-nlp.git", "clean install", "");
+    int buildNumber = master.createMavenJobFromGit(job);
+    Assert.assertEquals(1, buildNumber);
+    
+    Thread.sleep(10 * 1000); //for job submitted
+    
+    System.out.print("Progress: ");
+    while(job.isBuilding(buildNumber)) {
+      Thread.sleep(3 * 1000);
+      System.out.print(".");
+    }
+    System.out.println(job.getName() + " build successful");
+    Assert.assertEquals("SUCCESS", job.getStatus(buildNumber));
+    Assert.assertTrue(job.delete());
   }
 }

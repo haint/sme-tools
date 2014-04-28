@@ -108,7 +108,54 @@ public class JenkinsMaster {
     return body.length() == 0;
   }
   
-  private String buildURL(String actionURL) {
+  /**
+   * 
+   * @return build number
+   * @throws InterruptedException 
+   */
+  public int createMavenJobFromGit(JenkinsJob job) throws IOException, InterruptedException{
+    String url = buildURL("createItem");
+    DefaultHttpClient client = HttpClientFactory.getInstance();
+    HttpContext httpContext = new BasicHttpContext();
+    HttpPost post = new HttpPost(url);
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("{").append("\"name\":").append("\"").append(job.getName()).append("\"");
+    sb.append(", \"mode\" : \"hudson.maven.MavenModuleSet\", \"Submit\" : \"OK\"}");
+    
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("Submit", "OK"));
+    params.add(new BasicNameValuePair("json", sb.toString()));
+    params.add(new BasicNameValuePair("mode", "hudson.maven.MavenModuleSet"));
+    params.add(new BasicNameValuePair("name", job.getName()));
+    post.setEntity(new UrlEncodedFormEntity(params));
+    
+    HttpResponse res = client.execute(post, httpContext);
+    String body = HttpClientUtil.getContentBodyAsString(res);
+    if (body.length() == 0) {
+      url = buildURL("job/" + job.getName() + "/configSubmit");
+      post = new HttpPost(url);
+      post.setEntity(job.buildFormData());
+      res = client.execute(post, httpContext);
+      body = HttpClientUtil.getContentBodyAsString(res);
+      
+      if (body.length() == 0) {
+        url = buildURL("job/" + job.getName() + "/build?delay=0sec");
+        body = HttpClientUtil.fetch(client, url);
+        
+        if (body.length() == 0) {
+          url = buildURL("job/" + job.getName() + "/api/json");
+          body = HttpClientUtil.fetch(client, url);
+          JSONObject json = new JSONObject(body);
+          int nextBuildNumber = json.getInt("nextBuildNumber");
+          return nextBuildNumber == 1 ? 1 : nextBuildNumber - 1;
+        }
+      }
+    }
+    return -1;
+  }
+  
+  public String buildURL(String actionURL) {
     StringBuilder sb = new StringBuilder(scheme);
     sb.append("://").append(masterHost).append(":").append(port).append("/").append(actionURL);
     return sb.toString();
