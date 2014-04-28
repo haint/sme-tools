@@ -58,8 +58,7 @@ public class HttpClientUtil {
     ((AbstractHttpClient) httpclient).getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, host);
   }
   
-  public static String getContentBodyAsString(HttpResponse res) throws IOException 
-  {
+  public static byte[] getContentBodyAsByteArray(HttpResponse res) throws IOException {
     InputStream is = res.getEntity().getContent();
     BufferedInputStream bis = new BufferedInputStream(is);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -68,7 +67,12 @@ public class HttpClientUtil {
     {
       baos.write(buff, 0, l);
     }
-    return new String(baos.toByteArray(), "UTF-8");
+    return baos.toByteArray();
+  }
+  
+  public static String getContentBodyAsString(HttpResponse res) throws IOException 
+  {
+    return new String(getContentBodyAsByteArray(res), "UTF-8");
   }
 
   public static String getContentType(HttpResponse res) 

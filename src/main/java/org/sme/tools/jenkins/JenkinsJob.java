@@ -67,6 +67,17 @@ public class JenkinsJob {
     this.master = master;
   }
   
+  public byte[] getConsoleOutput(int buildNumber, int start) throws IOException {
+    String url = master.buildURL("job/" + name + "/" + buildNumber + "/logText/progressiveHtml");
+    DefaultHttpClient client = HttpClientFactory.getInstance();
+    HttpContext httpContext = new BasicHttpContext();
+    HttpPost post = new HttpPost(url);
+    List<NameValuePair> list = new ArrayList<NameValuePair>();
+    list.add(new BasicNameValuePair("start", String.valueOf(start)));
+    HttpResponse res = client.execute(post, httpContext);
+    return HttpClientUtil.getContentBodyAsByteArray(res);
+  }
+  
   public boolean isBuilding(int buildNumber) throws IOException {
     String url = master.buildURL("job/" + name + "/" + buildNumber + "/api/json");
     DefaultHttpClient client = HttpClientFactory.getInstance();

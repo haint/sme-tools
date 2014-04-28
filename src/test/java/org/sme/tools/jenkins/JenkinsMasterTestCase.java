@@ -71,8 +71,23 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
     
     System.out.print("Progress: ");
     while(job.isBuilding(buildNumber)) {
-      Thread.sleep(3 * 1000);
-      System.out.print(".");
+      Thread.sleep(1 * 1000);
+      int start = 0;
+      byte[] bytes = job.getConsoleOutput(buildNumber, start);
+      System.out.println(new String(bytes));
+      while (true) {
+        Thread.sleep(1 * 1000);
+        start += bytes.length;
+        int last = bytes.length;
+        bytes = job.getConsoleOutput(buildNumber, start);
+        byte[] next = new byte[bytes.length - last];
+        System.arraycopy(bytes, last, next, 0, next.length);
+        if (next.length > 0) { 
+          String output = new String(next);
+          System.out.println(output);
+          if (output.indexOf("channel stopped") != -1) break;
+        }
+      }
     }
     System.out.println(job.getName() + " build successful");
     Assert.assertEquals("SUCCESS", job.getStatus(buildNumber));
