@@ -25,19 +25,23 @@ public class VirtualMachineAPI extends CloudStackAPI {
     String zoneId = ZoneAPI.listAvailableZones().get(0).id;
     String templateId = TemplateAPI.listTemplates(TemplateFilter.all, null, template, zoneId).get(0).id;
     String serviceOfferingId = ServiceOfferingAPI.listServiceOfferings(null, service).get(0).id;
-    DiskOffering dof = DiskOfferingAPI.listDiskOfferings(null, disk).get(0);
     
     StringBuilder sb = new StringBuilder("command=deployVirtualMachine&response=json");
     sb.append("&zoneid=").append(zoneId);
     sb.append("&templateid=").append(templateId);
     sb.append("&serviceofferingid=").append(serviceOfferingId);
-    sb.append("&diskofferingid=").append(dof.id);
-    sb.append("&size=").append(dof.diskSize);
+    
+    if (disk != null && !disk.isEmpty()) {
+      DiskOffering dof = DiskOfferingAPI.listDiskOfferings(null, disk).get(0);
+      sb.append("&diskofferingid=").append(dof.id);
+      sb.append("&size=").append(dof.diskSize);
+    }
     
     if (name != null && !name.isEmpty()) {
       sb.append("&name=").append(name);
       sb.append("&displayname=").append(name);
     }
+    
     String response = request(sb.toString());
     JSONObject json = new JSONObject(response).getJSONObject("deployvirtualmachineresponse");
     String vmId = json.getString("id");
