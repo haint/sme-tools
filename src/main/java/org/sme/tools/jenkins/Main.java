@@ -51,8 +51,8 @@ public class Main {
     while (inets.hasMoreElements()) {
       String inetAddress = inets.nextElement().getHostAddress();
       if (inetAddress.startsWith("172.27.4.")) {
-        JenkinsSlave slave = new JenkinsSlave(inetAddress);
-        if (master.createSlave(slave)) {
+        JenkinsSlave slave = new JenkinsSlave(master, inetAddress);
+        if (slave.join()) {
           System.out.println("Create slave " + inetAddress + " sucessfully");
         } else {
           System.out.println("Can not create slave" + inetAddress);
@@ -69,7 +69,7 @@ public class Main {
     while (inets.hasMoreElements()) {
       String inetAddress = inets.nextElement().getHostAddress();
       if (inetAddress.startsWith("172.27.4.")) {
-        if (master.deleteSlave(inetAddress)) {
+        if (new JenkinsSlave(master, inetAddress).release()) {
           System.out.println("Destroyed slave " + inetAddress);
         } else {
           System.out.println("Can not destroy slave " + inetAddress);

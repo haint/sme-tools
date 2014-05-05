@@ -14,7 +14,6 @@ import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -30,7 +29,7 @@ import org.sme.tools.http.HttpClientUtil;
  *
  * Apr 26, 2014
  */
-public class JenkinsJob {
+public class JenkinsMavenJob {
   
   /** .*/
   private String name;
@@ -58,7 +57,7 @@ public class JenkinsJob {
    * @param goals empty string for not specified.
    * @param mavenOpts empty string for not specified.
    */
-  public JenkinsJob(JenkinsMaster master, String name, String assigned, String gitURL, String goals, String mavenOpts) {
+  public JenkinsMavenJob(JenkinsMaster master, String name, String assigned, String gitURL, String goals, String mavenOpts) {
     this.name = name;
     this.assigned = assigned;
     this.gitURL = gitURL;
@@ -78,12 +77,16 @@ public class JenkinsJob {
     return HttpClientUtil.getContentBodyAsByteArray(res);
   }
   
-  public boolean isBuilding(int buildNumber) throws IOException {
+  public boolean isBuilding(int buildNumber)  {
     String url = master.buildURL("job/" + name + "/" + buildNumber + "/api/json");
     DefaultHttpClient client = HttpClientFactory.getInstance();
-    String response = HttpClientUtil.fetch(client, url);
-    JSONObject json = new JSONObject(response);
-    return json.getBoolean("building");
+    try {
+      String response = HttpClientUtil.fetch(client, url);
+      JSONObject json = new JSONObject(response);
+      return json.getBoolean("building");
+    } catch (Exception e) {
+      return false;
+    }
   }
   
   public String getStatus(int buildNumber) throws IOException {
@@ -104,7 +107,53 @@ public class JenkinsJob {
     return body.length() == 0;
   }
   
-  public HttpEntity buildFormData() throws IOException {
+  /**
+   * 
+   * @return build number
+   */
+  public int submit() throws IOException {
+    String url = master.buildURL("createItem");
+    DefaultHttpClient client = HttpClientFactory.getInstance();
+    HttpContext httpContext = new BasicHttpContext();
+    HttpPost post = new HttpPost(url);
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("{").append("\"name\":").append("\"").append(this.name).append("\"");
+    sb.append(", \"mode\" : \"hudson.maven.MavenModuleSet\", \"Submit\" : \"OK\"}");
+    
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("Submit", "OK"));
+    params.add(new BasicNameValuePair("json", sb.toString()));
+    params.add(new BasicNameValuePair("mode", "hudson.maven.MavenModuleSet"));
+    params.add(new BasicNameValuePair("name", this.name));
+    post.setEntity(new UrlEncodedFormEntity(params));
+    
+    HttpResponse res = client.execute(post, httpContext);
+    String body = HttpClientUtil.getContentBodyAsString(res);
+    if (body.length() == 0) {
+      url = master.buildURL("job/" + this.name + "/configSubmit");
+      post = new HttpPost(url);
+      post.setEntity(this.buildFormData());
+      res = client.execute(post, httpContext);
+      body = HttpClientUtil.getContentBodyAsString(res);
+      
+      if (body.length() == 0) {
+        url = master.buildURL("job/" + this.name + "/build?delay=0sec");
+        body = HttpClientUtil.fetch(client, url);
+        
+        if (body.length() == 0) {
+          url = master.buildURL("job/" + this.name + "/api/json");
+          body = HttpClientUtil.fetch(client, url);
+          JSONObject json = new JSONObject(body);
+          int nextBuildNumber = json.getInt("nextBuildNumber");
+          return nextBuildNumber == 1 ? 1 : nextBuildNumber - 1;
+        }
+      }
+    }
+    return -1;
+  }
+  
+  private HttpEntity buildFormData() throws IOException {
     List<NameValuePair> list = new ArrayList<NameValuePair>();
     BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-job-template")));
     String line = null;

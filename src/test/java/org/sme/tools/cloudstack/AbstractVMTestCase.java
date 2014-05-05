@@ -21,7 +21,12 @@ public class AbstractVMTestCase {
   
   @Before
   public void setUp() throws Exception {
-    String[] response = VirtualMachineAPI.quickDeployVirtualMachine("slave-" + System.currentTimeMillis(), "jenkins-slave-non-ui", "Small Instance", "Small");
+    this.vm = this.createVM("jenkins-slave-non-ui");
+  }
+  
+  protected VirtualMachine createVM(String vmTemplate) throws Exception {
+    String[] response = VirtualMachineAPI.quickDeployVirtualMachine(
+        "slave-" + System.currentTimeMillis(), vmTemplate, "Medium Instance", null);
     String vmId = response[0];
     String jobId = response[1];
     Job job = AsyncJobAPI.queryAsyncJobResult(jobId);
@@ -30,8 +35,10 @@ public class AbstractVMTestCase {
     }
     if (job.getStatus() == Status.SUCCEEDED) {
       System.out.println("Created VM: " + vmId);
-      vm = VirtualMachineAPI.findVMById(vmId, VMDetails.nics);
+      return VirtualMachineAPI.findVMById(vmId, VMDetails.nics);
     }
+    
+    return null;
   }
   
   @After
