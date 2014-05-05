@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
 
 import org.sme.tools.ssh.SSHClient;
 
@@ -61,6 +62,21 @@ public class Knife {
     }
     Channel channel = SSHClient.execCommand(workstation, 22, username, password, sb.toString(), is, err);
     int exitCode = SSHClient.printOut(System.out, channel);
+    return exitCode == 0;
+  }
+  
+  public boolean bootstrap(String nodeIP, String nodeName, BlockingQueue<String> queue, String... recipes) throws JSchException, IOException {
+    StringBuilder sb = new StringBuilder("knife bootstrap ").append(nodeIP);
+    sb.append(" -x ubuntu -P ubuntu --sudo --use-sudo-password --no-host-key-verify -N ").append(nodeName);
+    if(recipes != null && recipes.length != 0) {
+      sb.append(" -r ");
+      for (int i = 0; i < recipes.length; i++) {
+        sb.append(recipes[i]);
+        if (i < recipes.length - 1) sb.append(",");
+      }
+    }
+    Channel channel = SSHClient.execCommand(workstation, 22, username, password, sb.toString(), null, System.err);
+    int exitCode = SSHClient.printOut(queue, channel);
     return exitCode == 0;
   }
   
