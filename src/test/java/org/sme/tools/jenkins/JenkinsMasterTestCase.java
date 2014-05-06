@@ -82,18 +82,16 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
       while(job.isBuilding(buildNumber)) {
         
         bytes = job.getConsoleOutput(buildNumber, start);
-        
-        Thread.sleep(1 * 1000);
-        
-        start += bytes.length;
         last = bytes.length;
-        bytes = job.getConsoleOutput(buildNumber, start);
-        byte[] next = new byte[bytes.length - last];
+        byte[] next = new byte[last - start];
         
-        System.arraycopy(bytes, last, next, 0, next.length);
+        System.arraycopy(bytes, start, next, 0, next.length);
+        
+        start += (last - start);
+        
         if (next.length > 0) { 
           String output = new String(next);
-          System.out.println(output);
+          System.out.println(output.trim());
           if (output.indexOf("channel stopped") != -1) break;
         }
       }
@@ -136,18 +134,16 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
       while(job.isBuilding(buildNumber)) {
         
         bytes = job.getConsoleOutput(buildNumber, start);
-        
-        Thread.sleep(1 * 1000);
-        
-        start += bytes.length;
         last = bytes.length;
-        bytes = job.getConsoleOutput(buildNumber, start);
-        byte[] next = new byte[bytes.length - last];
+        byte[] next = new byte[last - start];
         
-        System.arraycopy(bytes, last, next, 0, next.length);
+        System.arraycopy(bytes, start, next, 0, next.length);
+        
+        start += (last - start);
+        
         if (next.length > 0) { 
           String output = new String(next);
-          System.out.println(output);
+          System.out.println(output.trim());
           if (output.indexOf("channel stopped") != -1) break;
         }
       }

@@ -80,11 +80,13 @@ public class JenkinsMavenJob {
   public boolean isBuilding(int buildNumber)  {
     String url = master.buildURL("job/" + name + "/" + buildNumber + "/api/json");
     DefaultHttpClient client = HttpClientFactory.getInstance();
+    String response = null;
     try {
-      String response = HttpClientUtil.fetch(client, url);
+      response = HttpClientUtil.fetch(client, url);
       JSONObject json = new JSONObject(response);
       return json.getBoolean("building");
     } catch (Exception e) {
+      System.out.println(response);
       return false;
     }
   }
