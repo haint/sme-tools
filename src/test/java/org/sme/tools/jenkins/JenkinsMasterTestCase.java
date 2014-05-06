@@ -3,7 +3,6 @@
  */
 package org.sme.tools.jenkins;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +34,8 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
     super.tearDown();
   }
 
-  //@Test
-  public void testCreateSlave1() throws Exception {
+  @Test
+  public void testCreateSlave() throws Exception {
     
     this.vm = this.createVM("jenkins-slave-non-ui");
     
@@ -59,7 +58,7 @@ public class JenkinsMasterTestCase extends AbstractVMTestCase {
     }
   }
   
-  //@Test
+  @Test
   public void testCreateJob() throws Exception {
     
     this.vm = this.createVM("jenkins-slave-non-ui");

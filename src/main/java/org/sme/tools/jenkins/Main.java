@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -27,13 +29,14 @@ public class Main {
     Options options = new Options();
     options.addOption("c", "create-slave", false, "Create Jenkins Slave in this machine.");
     options.addOption("d", "destroy-slave", false, "Destroy Jenkins Slave in this machine.");
+    options.addOption("g", "slave-gui", false, "Use Jenkins Slave GUI instance");
     
     CommandLineParser parser = new BasicParser();
     HelpFormatter formatter = new HelpFormatter();
     try {
       CommandLine cmd = parser.parse(options, args);
       if (cmd.hasOption('c')){
-        createSlave();
+        createSlave(cmd.hasOption('g') ? true : false);
       } else if (cmd.hasOption('d')) {
         destroySlave();
       } else {
@@ -44,14 +47,23 @@ public class Main {
     }
   }
   
-  private static void createSlave() throws IOException {
+  private static void createSlave(boolean gui) throws IOException {
     JenkinsMaster master = new JenkinsMaster("git.sme.org", "http", 8080);
     NetworkInterface eth0 = NetworkInterface.getByName("eth0");
     Enumeration<InetAddress> inets = eth0.getInetAddresses();
     while (inets.hasMoreElements()) {
       String inetAddress = inets.nextElement().getHostAddress();
       if (inetAddress.startsWith("172.27.4.")) {
-        JenkinsSlave slave = new JenkinsSlave(master, inetAddress);
+        
+        JenkinsSlave slave = null;
+        Map<String, String> env = null;
+        
+        if (gui) {
+          env = new HashMap<String, String>();
+          env.put("DISPLAY", ":0");
+        } 
+        
+        slave = new JenkinsSlave(master, inetAddress, env);
         if (slave.join()) {
           System.out.println("Create slave " + inetAddress + " sucessfully");
         } else {

@@ -9,11 +9,13 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.ApiConstants.VMDetails;
 import org.apache.cloudstack.jobs.JobInfo.Status;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.sme.tools.cloudstack.model.Job;
 import org.sme.tools.cloudstack.model.VirtualMachine;
+import org.sme.tools.ssh.SSHClient;
 
 import com.cloud.vm.VirtualMachine.State;
 
@@ -54,23 +56,28 @@ public class VirtualMachineAPITestCase {
     }
     
     if (job.getStatus() == Status.SUCCEEDED) {
-      System.out.println("Created VM: " + vmId);
       
-      Thread.sleep(30 * 1000); //unstable
+      VirtualMachine vm = VirtualMachineAPI.findVMById(vmId, VMDetails.nics);
+      String ipAddress = vm.nic[0].ipAddress;
+      System.out.println("Created VM: " + ipAddress);
       
-      jobId = VirtualMachineAPI.destroyVM(vmId, true);
-      job = AsyncJobAPI.queryAsyncJobResult(jobId);
-      while (!job.getStatus().done()) {
+      if (SSHClient.checkEstablished(ipAddress, 22, 120)) {
+        jobId = VirtualMachineAPI.destroyVM(vmId, true);
         job = AsyncJobAPI.queryAsyncJobResult(jobId);
-      }
-      if (job.getStatus() == Status.SUCCEEDED) {
-        System.out.println("Destroyed VM: " + vmId);
-        return;
+        while (!job.getStatus().done()) {
+          job = AsyncJobAPI.queryAsyncJobResult(jobId);
+        }
+        if (job.getStatus() == Status.SUCCEEDED) {
+          System.out.println("Destroyed VM: " + vmId);
+          return;
+        } else {
+          Assert.fail("Destroy VM Unsuccessful");
+        }
       } else {
-        Assert.fail();
+        Assert.fail("Can not establish ssh connection for " + ipAddress);
       }
     } else {
-      Assert.fail();
+      Assert.fail("Create VM Unsuccessful");
     }
   }
 }
