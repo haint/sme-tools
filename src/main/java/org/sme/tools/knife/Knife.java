@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 
 import org.sme.tools.ssh.SSHClient;
 
@@ -65,7 +65,7 @@ public class Knife {
     return exitCode == 0;
   }
   
-  public boolean bootstrap(String nodeIP, String nodeName, BlockingQueue<String> queue, String... recipes) throws JSchException, IOException {
+  public boolean bootstrap(String nodeIP, String nodeName, Queue<String> queue, String... recipes) throws JSchException, IOException {
     StringBuilder sb = new StringBuilder("knife bootstrap ").append(nodeIP);
     sb.append(" -x ubuntu -P ubuntu --sudo --use-sudo-password --no-host-key-verify -N ").append(nodeName);
     if(recipes != null && recipes.length != 0) {

@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -90,7 +90,7 @@ public class SSHClient {
     }
   }
   
-  public static int printOut(BlockingQueue<String> queue, Channel channel) throws IOException {
+  public static int printOut(Queue<String> queue, Channel channel) throws IOException {
     InputStream in=channel.getInputStream();
     byte[] tmp=new byte[1024];
     while(true){
