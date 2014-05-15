@@ -77,22 +77,18 @@ public class JenkinsMavenJob {
     return HttpClientUtil.getContentBodyAsByteArray(res);
   }
   
-  public boolean isBuilding(int buildNumber) throws IOException  {
+  public boolean isBuilding(int buildNumber)  {
     String url = master.buildURL("job/" + name + "/" + buildNumber + "/api/json");
-    if (HttpClientUtil.ping(url, 30)) {
-      DefaultHttpClient client = HttpClientFactory.getInstance();
-      String response = null;
-      try {
-        response = HttpClientUtil.fetch(client, url);
-        JSONObject json = new JSONObject(response);
-        return json.getBoolean("building");
-      } catch (Exception e) {
-        System.out.println(response);
-        return false;
-      }
+    DefaultHttpClient client = HttpClientFactory.getInstance();
+    String response = null;
+    try {
+      response = HttpClientUtil.fetch(client, url);
+      JSONObject json = new JSONObject(response);
+      return json.getBoolean("building");
+    } catch (Exception e) {
+      System.out.println(response);
+      return false;
     }
-    
-    return false;
   }
   
   public String getStatus(int buildNumber) throws IOException {

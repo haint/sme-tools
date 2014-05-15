@@ -41,16 +41,6 @@ public class HttpClientUtil {
     return httpclient.execute(get);
   }
   
-  public static boolean ping(String uri, int timeout) throws IOException {
-    long start = System.currentTimeMillis();
-    HttpClient client = HttpClientFactory.getInstance();
-    while((System.currentTimeMillis() -  start) < (timeout * 1000)) {
-      HttpResponse response = HttpClientUtil.execute(client, uri);
-      if (response.getStatusLine().getStatusCode() == 200) return true;
-    }
-    return false;
-  }
-  
   public static Cookie addCookie(HttpClient httpclient, String name, String value) 
   {
     if(httpclient == null)
