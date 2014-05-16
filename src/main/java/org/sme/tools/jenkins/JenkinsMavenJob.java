@@ -140,18 +140,25 @@ public class JenkinsMavenJob {
       body = HttpClientUtil.getContentBodyAsString(res);
       
       if (body.length() == 0) {
-        url = master.buildURL("job/" + this.name + "/build?delay=0sec");
-        body = HttpClientUtil.fetch(client, url);
-        
-        if (body.length() == 0) {
-          url = master.buildURL("job/" + this.name + "/api/json");
-          body = HttpClientUtil.fetch(client, url);
-          JSONObject json = new JSONObject(body);
-          int nextBuildNumber = json.getInt("nextBuildNumber");
-          return nextBuildNumber == 1 ? 1 : nextBuildNumber - 1;
-        }
+        return build();
       }
     }
+    return -1;
+  }
+  
+  public int build() throws IOException {
+    DefaultHttpClient client = HttpClientFactory.getInstance();
+    String url = master.buildURL("job/" + this.name + "/build?delay=0sec");
+    String body = HttpClientUtil.fetch(client, url);
+    
+    if (body.length() == 0) {
+      url = master.buildURL("job/" + this.name + "/api/json");
+      body = HttpClientUtil.fetch(client, url);
+      JSONObject json = new JSONObject(body);
+      int nextBuildNumber = json.getInt("nextBuildNumber");
+      return nextBuildNumber == 1 ? 1 : nextBuildNumber - 1;
+    }
+    
     return -1;
   }
   
